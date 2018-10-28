@@ -1,0 +1,40 @@
+body {
+    color: #5a5a5a;
+}
+
+._btn {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-weight: 400;
+    font-size: 1rem;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+
+._btn-outline-light {
+    color: #f8f9fa;
+    background-color: transparent;
+    background-image: none;
+    border-color: #e1e6ea;
+}
+  
+._btn-outline-light:hover {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #e1e6ea;
+}
+
+/******************** Extra large device (>= 1200px / 1140px) ********************/
+/******************** Large device (>= 992px / 960px) ********************/
+/******************** Medium device (>= 768px / 720px) ********************/
+/******************** Small device (>= 576px / 540px) ********************/
+/******************** Extra small device (< 576px) ********************/

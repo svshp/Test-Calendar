@@ -1,0 +1,54 @@
+* {
+    --select-period-height: 50px;
+    --border-style: 1px solid #e1e6ea;
+}
+
+.section-dates {
+    &__select-period {
+        height: var(--select-period-height);
+        margin: 0;
+        padding: 10px 0;
+
+        &_month {
+            display: inline-flex;
+        }
+
+        &_month-text {
+            margin: 0 10px;
+        }
+
+        &_today {
+            margin-left: 15px;
+        }
+    }
+
+    &__table {
+        display: flex;
+        flex-direction: column;
+        margin-top: 0;
+        border-top: var(--border-style);
+
+        &_row {
+            display: flex;
+            min-height: 77px;
+            border-left: var(--border-style);
+            border-bottom: var(--border-style);
+        }
+
+        &_col {
+            width: 100%;
+            padding: 5px;
+            border-right: var(--border-style);
+            font-size: 0.75rem;
+        }
+
+        &_col.today {
+            background: #f0f2f5 !important;
+            font-weight: 700;
+        }
+
+        &_col.event {
+            background: lightblue;
+        }
+    }
+}

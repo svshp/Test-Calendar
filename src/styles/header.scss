@@ -1,0 +1,55 @@
+* {
+--header-height: 50px;
+}
+
+.block-header {
+    
+    height: var(--header-height);
+    width: 100%;
+    background: #ecf2f8;
+    border-bottom: 2px solid #cccccc;
+
+    &__btn-add {
+        margin-top: 10px;
+    }
+
+    &__btn-update {
+        margin-top: 10px;
+        margin-left: 15px;
+    }
+
+    &__find {
+        display: flex;
+        height: 25px;
+        width: 200px;
+        margin-top: 10px;
+
+        &_find {
+            height: 100%;
+        }
+
+        &_find img {
+            height: 100%;
+            margin-right: 5px;
+        }
+
+        &_field {
+            width: 100%;
+        }
+    }
+}
+
+/*************** SCROLLBAR STYLE ***************/
+
+::-webkit-scrollbar{
+    width: 5px; 
+}
+
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+ ::-webkit-scrollbar-thumb {
+    border-radius: 8px; 
+    background-color: #999;
+}

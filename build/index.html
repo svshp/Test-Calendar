@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Calendar</title>
+
+    <!-- My CSS -->
+    <link rel='stylesheet' type='text/css' href='./mva-boot-styles.css'>
+    <link rel='stylesheet' type='text/css' href='./mva-styles.css'>
+    <link rel='stylesheet' type='text/css' href='./css/styles.css'>
+</head>
+<body>
+    <div class='block-header'>
+        <div class='container'>
+            <div class='row'>
+                <div class='offset-1 offset-sm-0 block-header__btn'>
+                    <button type="button" class='_btn btn-primary block-header__btn-add'>Добавить</button>
+                    <button type="button" class='_btn btn-primary block-header__btn-update'>Обновить</button>
+                </div>
+                <div class='offset-1 offset-sm-2 offset-md-3 offset-lg-5 offset-xl-7 block-header__find'>
+                    <div class='block-header__find_find'>
+                        <img src='../img/Magnifier_Grey.svg'>
+                    </div>
+                    <input type='text' class='block-header__find_field'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='section-dates'>
+        <div class='container'>
+            <div class='row section-dates__select-period'>
+                <div class='section-dates__select-period_month'>
+                    <button type="button" class='_btn _btn-outline-light text-dark section-dates__select-period_month-minus'><</button>
+                    <div class='section-dates__select-period_month-text'>
+                    </div>
+                    <button type="button" class='_btn _btn-outline-light text-dark  section-dates__select-period_month-plus'>></button>
+                </div>
+                <button type="button" class='_btn _btn-outline-light text-dark section-dates__select-period_today'>Сегодня</button>
+            </div>
+            <div class='section-dates__table'>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Moment.js -->
+    <script src='./js/moment-with-locales.js'></script>
+    <!-- Main.js -->
+    <script src='./js/main.js'></script>
+</body>
+</html>
