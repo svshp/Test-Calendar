@@ -1,9 +1,23 @@
+/*************** SCROLLBAR STYLE ***************/
+
+::-webkit-scrollbar{
+    width: 5px; 
+}
+
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+ ::-webkit-scrollbar-thumb {
+    border-radius: 8px; 
+    background-color: #999;
+}
+
 * {
 --header-height: 50px;
 }
 
 .block-header {
-    
     height: var(--header-height);
     width: 100%;
     background: #ecf2f8;
@@ -20,36 +34,39 @@
 
     &__find {
         display: flex;
-        height: 25px;
-        width: 200px;
+        height: 30px;
+        width: 250px;
         margin-top: 10px;
 
-        &_find {
+        &_img {
             height: 100%;
+            padding: 4px;
+            padding-right: 1px;
         }
 
-        &_find img {
+        &_img img {
             height: 100%;
             margin-right: 5px;
         }
 
+        &_find {
+            height: 100%;
+            padding: 0 0 0 5px;
+            background: #fff;
+            box-sizing: border-box;
+            border: 1px solid #000;
+        }
+
         &_field {
-            width: 100%;
+            border: none;
+            outline: none;
+        }
+
+        &_btn-clear {
+            background: #fff;
+            color: #fff;
+            border: none;
+            outline: none;
         }
     }
-}
-
-/*************** SCROLLBAR STYLE ***************/
-
-::-webkit-scrollbar{
-    width: 5px; 
-}
-
-::-webkit-scrollbar-track {
-    background-color: #F5F5F5;
-}
-
- ::-webkit-scrollbar-thumb {
-    border-radius: 8px; 
-    background-color: #999;
 }
