@@ -26,7 +26,7 @@ window.onload = function () {
 }
 
 //**********************************************************************
-// Events
+// Setup
 
 function setUpButtons() {
     let btnAdd = document.querySelector('.block-header__btn-add');
@@ -51,91 +51,15 @@ function setUpButtons() {
     btnToday.addEventListener('click', setToday);
 }
 
+//**********************************************************************
+// Events
+
 function addEvent() {
     console.log('addEvent()');
 }
 
 function updateEvent() {
     localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
-}
-
-function findEvents() {
-    let fieldFindEvents = document.querySelector('.block-header__find_field');
-
-    let findEvents = searchTitleEvents();
-
-    findEvents.style.top = (fieldFindEvents.offsetTop + fieldFindEvents.offsetHeight + 13) + 'px';
-    findEvents.style.left = fieldFindEvents.offsetLeft + 'px';
-    findEvents.style.display = 'block';
-}
-
-function searchTitleEvents() {
-    let findEvents = getFindEvents();
-    let searchValue = document.querySelector('.block-header__find_field').value.toLowerCase();
-
-    let resultSearch = storage.tableEvents.filter((item) => {
-        return item.title.toLowerCase().search(searchValue) !== -1;
-    });
-
-    for (let i = 0; i < resultSearch.length; i++) {
-        let findEventsRow = document.createElement('div');
-        findEventsRow.classList.add('find-events__row');
-
-        let rowTitle = document.createElement('div');
-        rowTitle.textContent = resultSearch[i].title;
-        rowTitle.classList.add('find-events__row_title');
-
-        let rowInfo = document.createElement('div');
-        rowInfo.textContent = moment(resultSearch[i].date).format('Do MMMM');
-        rowInfo.classList.add('find-events__row_Info');
-
-        findEventsRow.appendChild(rowTitle);
-        findEventsRow.appendChild(rowInfo);
-
-        findEvents.appendChild(findEventsRow);
-    }
-
-    return findEvents;
-}
-
-function getFindEvents() {
-    let findEvents = document.querySelector('.find-events');
-
-    while (findEvents.hasChildNodes()) {   
-        findEvents.removeChild(findEvents.firstChild);
-    }
-
-    return findEvents;
-}
-
-function fieldFindEvents(e) {
-    let searchingText = document.querySelector('.block-header__find_field').value;
-
-    let btnClear = document.querySelector('.block-header__find_btn-clear');
-    if (searchingText.length < 3) {
-        btnClear.style.color = '#fff';
-        hideFindEvents();
-    }
-    else {
-        btnClear.style.color = '#000';
-
-        findEvents();
-    }
-}
-
-function fieldFindBtnClear() {
-    document.querySelector('.block-header__find_field').value = '';
-
-    hideFindEvents();
-
-    let btnClear = document.querySelector('.block-header__find_btn-clear');
-    btnClear.style.color = '#fff';
-    btnClear.blur();
-}
-
-function hideFindEvents() {
-    let findEvents = document.querySelector('.find-events');
-    findEvents.style.display = 'none';
 }
 
 function monthMinus() {
@@ -171,26 +95,52 @@ function setToday() {
     fillTable();
 }
 
-//**********************************************************************
+function fieldFindEvents(e) {
+    let searchingText = document.querySelector('.block-header__find_field').value;
+    let btnClear = document.querySelector('.block-header__find_btn-clear');
 
-function calculateDates() {
-    let shiftDate = -(storage.curentMonth.day() - 1);
-
-    if (storage.curentMonth.day() === 0) {
-        shiftDate = -6;
+    if (e.keyCode === 27) {
+        document.querySelector('.block-header__find_field').value = '';
+        btnClear.style.color = '#fff';
+        hideFindEvents();
     }
-
-    storage.startDate = moment(storage.curentMonth).add(shiftDate, 'days');
-    storage.endDate = moment(storage.startDate).add(42, 'days').add(-1,'seconds');
-    storage.outputDate = moment(storage.startDate);
-
-    if (storage.endDate.date() > 6 ) {
-        storage.endDate.add(-7, 'days');
-        storage.longPeriod = false;
+    else if (searchingText.length < 3) {
+        btnClear.style.color = '#fff';
+        hideFindEvents();
     }
     else {
-        storage.longPeriod = true;
+        btnClear.style.color = '#000';
+
+        findEvents();
     }
+}
+
+function fieldFindBtnClear() {
+    document.querySelector('.block-header__find_field').value = '';
+
+    hideFindEvents();
+
+    let btnClear = document.querySelector('.block-header__find_btn-clear');
+    btnClear.style.color = '#fff';
+    btnClear.blur();
+}
+
+function hideFindEvents() {
+    let findEvents = document.querySelector('.find-events');
+    findEvents.style.display = 'none';
+}
+
+//**********************************************************************
+// Ouput data
+
+function outputPeriod() {
+    let selectedPeriod = document.querySelector('.section-dates__select-period_month-text');
+    selectedPeriod.textContent = getSelectedPeriod();
+}
+
+function getSelectedPeriod() {
+    // moment.locale('ru');
+    return moment(storage.curentMonth).format('MMMM YYYY');
 }
 
 function buildLayoutTable() {
@@ -203,24 +153,6 @@ function buildLayoutTable() {
         sectionDatesTableRow.classList.add('section-dates__table_row');
 
         sectionDatesTable.appendChild(sectionDatesTableRow);
-    }
-}
-
-function correctLayoutTable(prevMaxRows) {
-    let sectionDatesTable = document.querySelector('.section-dates__table');
-
-    let maxRows = storage.longPeriod ? 6 : 5;
-
-    if (maxRows > prevMaxRows) {
-        let sectionDatesTableRow = generateTableRow();
-        sectionDatesTableRow.classList.add('section-dates__table_row');
-
-        sectionDatesTable.appendChild(sectionDatesTableRow);
-    }
-    else if (maxRows < prevMaxRows) {
-        let sectionDatesTableRow = generateTableRow();
-
-        sectionDatesTable.removeChild(sectionDatesTable.lastChild);
     }
 }
 
@@ -255,14 +187,22 @@ function generateTableRowCol() {
     return tableRowCol;
 }
 
-function outputPeriod() {
-    let selectedPeriod = document.querySelector('.section-dates__select-period_month-text');
-    selectedPeriod.textContent = getSelectedPeriod();
-}
+function correctLayoutTable(prevMaxRows) {
+    let sectionDatesTable = document.querySelector('.section-dates__table');
 
-function getSelectedPeriod() {
-    // moment.locale('ru');
-    return moment(storage.curentMonth).format('MMMM YYYY');
+    let maxRows = storage.longPeriod ? 6 : 5;
+
+    if (maxRows > prevMaxRows) {
+        let sectionDatesTableRow = generateTableRow();
+        sectionDatesTableRow.classList.add('section-dates__table_row');
+
+        sectionDatesTable.appendChild(sectionDatesTableRow);
+    }
+    else if (maxRows < prevMaxRows) {
+        let sectionDatesTableRow = generateTableRow();
+
+        sectionDatesTable.removeChild(sectionDatesTable.lastChild);
+    }
 }
 
 function fillTable() {
@@ -285,8 +225,8 @@ function fillTable() {
 
             curTableColSpan.textContent = countDate < 7 ? storage.outputDate.format('dddd') + ', ' : '';
             curTableColSpan.textContent += storage.outputDate.date();
-    
-            if (storage.outputDate.format(storage.curentFormat) === moment().hours(0).minutes(0).seconds(0).format(storage.curentFormat)) {
+
+            if (equalToday(storage.outputDate.format(storage.curentFormat))) {
                 curTableCol.classList.add('today');
             }
 
@@ -313,24 +253,6 @@ function fillTable() {
     }
 }
 
-function findFirstEventIndex(startDate) {
-    let curIndex = -1;
-
-    for (let i = 0; i < storage.tableEvents.length; i++) {
-        if (moment(storage.tableEvents[i].date) >= moment(startDate)) {
-            curIndex = i;
-            break;
-        }
-    }
-
-    return curIndex;
-}
-
-function equalDates(firstEventIndex) {
-    return moment(storage.tableEvents[firstEventIndex].date).hours(0).minutes(0).seconds(0).format(storage.curentFormat)
-           === moment(storage.outputDate).hours(0).minutes(0).seconds(0).format(storage.curentFormat);
-}
-
 function addParticipants(curTableColParticipants, firstEventIndex) {
     let quantParticipants = storage.tableEvents[firstEventIndex].participants.length;
 
@@ -352,6 +274,104 @@ function addParticipants(curTableColParticipants, firstEventIndex) {
     curTableColParticipants.textContent = listParticipants;
 }
 
+function findEvents() {
+    let fieldFindEvents = document.querySelector('.block-header__find_find');
+
+    let findEvents = searchEvents();
+
+    findEvents.style.top = (fieldFindEvents.offsetTop + fieldFindEvents.offsetHeight + 7) + 'px';
+    findEvents.style.left = fieldFindEvents.offsetLeft + 'px';
+    findEvents.style.display = 'block';
+}
+
+function searchEvents() {
+    let findEvents = document.querySelector('.find-events');
+    let findEventsList = getListEvents();
+    let searchValue = document.querySelector('.block-header__find_field').value.toLowerCase();
+
+    let resultSearch = storage.tableEvents.filter((item) => {
+        return item.title.toLowerCase().search(searchValue) !== -1;
+    });
+
+    for (let i = 0; i < resultSearch.length; i++) {
+        let findEventsRow = document.createElement('div');
+        findEventsRow.classList.add('find-events__list_row');
+
+        let rowTitle = document.createElement('div');
+        rowTitle.textContent = resultSearch[i].title;
+        rowTitle.classList.add('find-events__list_row-title');
+
+        let rowInfo = document.createElement('div');
+        rowInfo.textContent = moment(resultSearch[i].date).format('Do MMMM');
+        rowInfo.classList.add('find-events__list_row-Info');
+
+        findEventsRow.appendChild(rowTitle);
+        findEventsRow.appendChild(rowInfo);
+
+        findEventsList.appendChild(findEventsRow);
+    }
+
+    findEvents.appendChild(findEventsList);
+
+    return findEvents;
+}
+
+function getListEvents() {
+    let findEventsList = document.querySelector('.find-events__list');
+
+    while (findEventsList.hasChildNodes()) {
+        findEventsList.removeChild(findEventsList.lastChild);
+    }
+
+    return findEventsList;
+}
+
+//**********************************************************************
+// Other
+
+function calculateDates() {
+    let shiftDate = -(storage.curentMonth.day() - 1);
+
+    if (storage.curentMonth.day() === 0) {
+        shiftDate = -6;
+    }
+
+    storage.startDate = moment(storage.curentMonth).add(shiftDate, 'days');
+    storage.endDate = moment(storage.startDate).add(42, 'days').add(-1,'seconds');
+    storage.outputDate = moment(storage.startDate);
+
+    if (storage.endDate.date() > 6 ) {
+        storage.endDate.add(-7, 'days');
+        storage.longPeriod = false;
+    }
+    else {
+        storage.longPeriod = true;
+    }
+}
+
+function equalDates(firstEventIndex) {
+    return moment(storage.tableEvents[firstEventIndex].date).hours(0).minutes(0).seconds(0).format(storage.curentFormat)
+           === moment(storage.outputDate).hours(0).minutes(0).seconds(0).format(storage.curentFormat);
+}
+
+function equalToday(curDate) {
+    return moment().hours(0).minutes(0).seconds(0).format(storage.curentFormat)
+           === curDate;
+}
+
+function findFirstEventIndex(startDate) {
+    let curIndex = -1;
+
+    for (let i = 0; i < storage.tableEvents.length; i++) {
+        if (moment(storage.tableEvents[i].date) >= moment(startDate)) {
+            curIndex = i;
+            break;
+        }
+    }
+
+    return curIndex;
+}
+
 function readData() {
     storage.tableEvents = JSON.parse(localStorage.getItem('arrayEvents'));
 
@@ -364,12 +384,12 @@ function readData() {
                     storage.tableEvents = JSON.parse(xhr.responseText).events;
                 
                     storage.tableEvents.sort((first, second) => (moment(first.date) - moment(second.date)));
-    
+
                     fillTable();
                 }
             }
         }
-    
+
         xhr.open('GET', './events.json', true);
         xhr.send();
         }
