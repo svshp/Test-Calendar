@@ -1,0 +1,42 @@
+.add-events {
+    &__body_btn {
+        margin-bottom: 15px;
+    }
+
+    &__body_btn-close {
+        position: absolute;
+        right: 5px;
+        background: #fff;
+        border: none;
+        outline: none;
+    }
+
+    &__body {
+        width: 100%;
+
+        &_title,
+        &_date,
+        &_participant,
+        &_description {
+            width: auto;
+            margin: 0 10px 7px 10px;
+        }
+
+        &_description {
+            width: auto;
+            height: 140px;
+        }
+
+        &_title-field,
+        &_date-field,
+        &_participant-field,
+        &_description-field {
+            width: 100%; 
+            height: 100%; 
+        }
+
+        &_btns {
+            margin: 0 10px;
+        }
+    }
+}
