@@ -4,19 +4,21 @@
 // var
 
 let storage = {
-    curentFormat: 'YYYY-MM-DD',
-    curentMonth: null,
+    currentFormat: 'YYYY-MM-DD',
+    currentMonth: null,
     longPeriod: false,
     tableEvents: null,
     startDate: null,
     endDate: null,
-    outputDate: null
+    outputDate: null,
+    needSorting: false,
+    currentEvent: null
 }
 
 //**********************************************************************
 
 window.onload = function () {
-    storage.curentMonth = moment().date(1).hours(0).minutes(0).seconds(0);
+    storage.currentMonth = moment().date(1).hours(0).minutes(0).seconds(0);
 
     calculateDates();
     buildLayoutTable();
@@ -75,12 +77,17 @@ function addEvent() {
     let btnAddEvent = document.querySelector('.block-header__btn-add');
     let addEvent = document.querySelector('.add-events');
 
+    // Set arrow
+    removeAllArrows(addEvent);
+    addEvent.classList.add('top');
+
+    document.querySelector('.add-events__body_btn-create').style.display = 'block';
     document.querySelector('.add-events__body_btn-ok').style.display = 'none';
     document.querySelector('.add-events__body_btn-delete').style.display = 'none';
 
     addEvent.style.top = (btnAddEvent.offsetTop + btnAddEvent.offsetHeight + 10) + 'px';
     addEvent.style.left = btnAddEvent.offsetLeft + 'px';
-    addEvent.style.height = '500px';
+    addEvent.style.height = '300px';
     addEvent.style.width = '350px';
     addEvent.style.display = 'block';
 }
@@ -101,7 +108,19 @@ function addEventsBtnOk() {
 }
 
 function addEventsBtnDelete() {
-    console.log('addEventsBtnDelete()');
+    let currentIndexEvent = +storage.currentEvent.getAttribute('data-array');
+    let confirmText = 'Удалить событие "' + storage.tableEvents[currentIndexEvent].title + '" ' + storage.tableEvents[currentIndexEvent].date + '!';
+    let answer = confirm(confirmText);
+
+    if (answer === true) {
+        // Clear event
+        storage.currentEvent.classList.remove('event');
+        storage.currentEvent.querySelector('.section-dates__table_col-event').textContent = '';
+        storage.currentEvent.querySelector('.section-dates__table_col-participant').textContent = '';
+
+        deleteEvent();
+        closeAddEvents();
+    }
 }
 
 function updateEvent() {
@@ -111,7 +130,7 @@ function updateEvent() {
 function monthMinus() {
     let prevMaxRows = storage.longPeriod ? 6 : 5;
 
-    storage.curentMonth = moment(storage.curentMonth).add(-1, 'month');
+    storage.currentMonth = moment(storage.currentMonth).add(-1, 'month');
 
     calculateDates();
     correctLayoutTable(prevMaxRows);
@@ -123,7 +142,7 @@ function monthMinus() {
 function monthPlus() {
     let prevMaxRows = storage.longPeriod ? 6 : 5;
 
-    storage.curentMonth = moment(storage.curentMonth).add(+1, 'month');
+    storage.currentMonth = moment(storage.currentMonth).add(+1, 'month');
 
     calculateDates();
     correctLayoutTable(prevMaxRows);
@@ -135,7 +154,7 @@ function monthPlus() {
 function setToday() {
     let prevMaxRows = storage.longPeriod ? 6 : 5;
 
-    storage.curentMonth = moment().date(1).hours(0).minutes(0).seconds(0);
+    storage.currentMonth = moment().date(1).hours(0).minutes(0).seconds(0);
 
     calculateDates();
     correctLayoutTable(prevMaxRows);
@@ -175,9 +194,76 @@ function fieldFindBtnClear() {
 }
 
 function editEvent(e) {
-    console.log(e.path[0]);
-    console.log(e.path[1]);
-    console.log('editEvent()');
+    let findEvent = null;
+
+    for (let i = 0; i < e.path.length; i++) {
+        if (e.path[i].classList.contains('section-dates__table_col')) {
+            findEvent = e.path[i];
+            break;
+        }
+    }
+
+    if (findEvent.classList.contains('event')) {
+        let indexArrayEvents = +findEvent.getAttribute('data-array');
+
+        let editEvent = document.querySelector('.add-events');
+
+        document.querySelector('.add-events__body_btn-create').style.display = 'none';
+        document.querySelector('.add-events__body_btn-ok').style.display = 'inline-block';
+        document.querySelector('.add-events__body_btn-delete').style.display = 'inline-block';
+
+        let windowInnerHeight = window.innerHeight;
+        let windowInnerWidth = window.innerWidth;
+
+        // Current position
+        let findEventOffsetTop = findEvent.offsetTop;
+        let findEventOffsetLeft = findEvent.offsetLeft;
+        let findEventOffsetHeight = findEvent.offsetHeight;
+        let findEventOffsetWidth = findEvent.offsetWidth;
+        
+        let editEventHeight = 300;
+        let editEventWidth = 350;
+
+        // Calculate coordinates
+        let editEventTop = 0;
+        let editEventLeft = 0;
+
+        removeAllArrows(editEvent);
+
+        editEventTop = findEventOffsetTop;
+
+        if ((findEventOffsetTop + editEventHeight) <= windowInnerHeight) {
+            /* editEventTop = findEventOffsetTop; */
+        }
+        else {
+            /* editEventTop = findEventOffsetTop + findEventOffsetHeight - editEventHeight; */
+        }
+
+        if ((findEventOffsetLeft + findEventOffsetWidth + editEventWidth) <= windowInnerWidth) {
+            editEventLeft = findEventOffsetLeft + findEventOffsetWidth + 10;
+            editEvent.classList.add('left');
+        }
+        else {
+            editEventLeft = findEventOffsetLeft - editEventWidth - 10;
+            editEvent.classList.add('right');
+        }
+
+        editEvent.style.top = editEventTop + 'px';
+        editEvent.style.left = editEventLeft + 'px';
+        editEvent.style.height = editEventHeight + 'px';
+        editEvent.style.width = editEventWidth + 'px';
+        editEvent.style.display = 'block';
+
+        editEvent.querySelector('.add-events__body_title-field').value = storage.tableEvents[indexArrayEvents].title;
+        editEvent.querySelector('.add-events__body_date-field').value = moment(storage.tableEvents[indexArrayEvents].date).format('YYYY-MM-DDThh:mm');
+        editEvent.querySelector('.add-events__body_participant-field').value = readListParticipants(indexArrayEvents);
+    
+        if (storage.tableEvents[indexArrayEvents].description) {
+            editEvent.querySelector('.add-events__body_description-field').value = storage.tableEvents[indexArrayEvents].description;
+        }
+
+        storage.currentEvent = findEvent;
+    }
 }
 
 //**********************************************************************
@@ -190,7 +276,7 @@ function outputPeriod() {
 
 function getSelectedPeriod() {
     // moment.locale('ru');
-    return moment(storage.curentMonth).format('MMMM YYYY');
+    return moment(storage.currentMonth).format('MMMM YYYY');
 }
 
 function buildLayoutTable() {
@@ -271,8 +357,9 @@ function fillTable() {
 
             curTableCol.classList.remove('today');
             curTableCol.classList.remove('event');
+            curTableCol.removeAttribute('data-array');
 
-            if (equalToday(storage.outputDate.format(storage.curentFormat))) {
+            if (equalToday(storage.outputDate.format(storage.currentFormat))) {
                 curTableCol.classList.add('today');
             }
         
@@ -291,6 +378,7 @@ function fillTable() {
                     curTableColEvent.textContent = storage.tableEvents[firstEventIndex].title;
         
                     curTableCol.classList.add('event');
+                    curTableCol.setAttribute('data-array', firstEventIndex);
         
                     addParticipants(curTableColParticipants, firstEventIndex);
         
@@ -305,6 +393,12 @@ function fillTable() {
 }
 
 function addParticipants(curTableColParticipants, firstEventIndex) {
+    let listParticipants = readListParticipants(firstEventIndex) + '.';
+
+    curTableColParticipants.textContent = listParticipants;
+}
+
+function readListParticipants(firstEventIndex) {
     let quantParticipants = storage.tableEvents[firstEventIndex].participants.length;
 
     let listParticipants = '';
@@ -317,14 +411,13 @@ function addParticipants(curTableColParticipants, firstEventIndex) {
         }
 
         if (i === (quantParticipants - 1)) {
-            listParticipants += '.';
         }
         else {
             listParticipants += ', ';
         }
     }
 
-    curTableColParticipants.textContent = listParticipants;
+    return listParticipants;
 }
 
 function hideFindEvents() {
@@ -388,13 +481,13 @@ function getListEvents() {
 // Other
 
 function calculateDates() {
-    let shiftDate = -(storage.curentMonth.day() - 1);
+    let shiftDate = -(storage.currentMonth.day() - 1);
 
-    if (storage.curentMonth.day() === 0) {
+    if (storage.currentMonth.day() === 0) {
         shiftDate = -6;
     }
 
-    storage.startDate = moment(storage.curentMonth).add(shiftDate, 'days');
+    storage.startDate = moment(storage.currentMonth).add(shiftDate, 'days');
     storage.endDate = moment(storage.startDate).add(42, 'days').add(-1,'seconds');
     storage.outputDate = moment(storage.startDate);
 
@@ -454,15 +547,25 @@ function createEvent() {
     localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
 
     updateTableCol(indexEvent);
+
+    storage.needSorting = true;
+}
+
+function deleteEvent() {
+    let indexArrayEvents = +storage.currentEvent.getAttribute('data-array');
+
+    storage.tableEvents.splice(indexArrayEvents, 1);
+
+    localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
 }
 
 function equalDates(indexEvent) {
-    return moment(storage.tableEvents[indexEvent].date).hours(0).minutes(0).seconds(0).format(storage.curentFormat)
-           === moment(storage.outputDate).hours(0).minutes(0).seconds(0).format(storage.curentFormat);
+    return moment(storage.tableEvents[indexEvent].date).hours(0).minutes(0).seconds(0).format(storage.currentFormat)
+           === moment(storage.outputDate).hours(0).minutes(0).seconds(0).format(storage.currentFormat);
 }
 
 function equalToday(curDate) {
-    return moment().hours(0).minutes(0).seconds(0).format(storage.curentFormat)
+    return moment().hours(0).minutes(0).seconds(0).format(storage.currentFormat)
            === curDate;
 }
 
@@ -470,8 +573,8 @@ function findDateEvent(event) {
     let result = -1;
 
     for (let i = 0; i < storage.tableEvents.length; i++) {
-        if (moment(storage.tableEvents[i].date).hours(0).minutes(0).seconds(0).format(storage.curentFormat)
-            === moment(event.date).hours(0).minutes(0).seconds(0).format(storage.curentFormat)) {
+        if (moment(storage.tableEvents[i].date).hours(0).minutes(0).seconds(0).format(storage.currentFormat)
+            === moment(event.date).hours(0).minutes(0).seconds(0).format(storage.currentFormat)) {
             result = i;
             break;
         }
@@ -503,7 +606,7 @@ function readData() {
                 if (xhr.status === 200) {
                     storage.tableEvents = JSON.parse(xhr.responseText).events;
 
-                    sortTableEvents();
+                    sortTableEvents(true);
 
                     fillTable();
                 }
@@ -514,14 +617,25 @@ function readData() {
         xhr.send();
         }
     else {
-        storage.tableEvents.sort((first, second) => (moment(first.date) - moment(second.date)));
+        sortTableEvents(true);
 
         fillTable();
     }
 }
 
-function sortTableEvents() {
-    storage.tableEvents.sort((first, second) => (moment(first.date) - moment(second.date)));
+function removeAllArrows(editEvent) {
+    editEvent.classList.remove('top');
+    editEvent.classList.remove('left');
+    editEvent.classList.remove('bottom');
+    editEvent.classList.remove('right');
+}
+
+function sortTableEvents(necessarily = false) {
+    if (storage.needSorting || necessarily) {
+        storage.tableEvents.sort((first, second) => (moment(first.date) - moment(second.date)));
+
+        storage.needSorting = false;
+    }
 }
 
 function verifeEvent() {
