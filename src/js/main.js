@@ -12,7 +12,8 @@ let storage = {
     endDate: null,
     outputDate: null,
     needSorting: false,
-    currentEvent: null
+    currentEvent: null,
+    previosStyleBorder: ''
 }
 
 //**********************************************************************
@@ -53,16 +54,16 @@ function setUpButtons() {
     btnToday.addEventListener('click', setToday);
 
     let btnClose = document.querySelector('.add-events__body_btn-close');
-    btnClose.addEventListener('click', addEventsBtnClose);
+    btnClose.addEventListener('click', addEventBtnClose);
 
     let btnCreate = document.querySelector('.add-events__body_btn-create');
-    btnCreate.addEventListener('click', addEventsBtnCreate);
+    btnCreate.addEventListener('click', addEventBtnCreate);
 
     let btnOk = document.querySelector('.add-events__body_btn-ok');
-    btnOk.addEventListener('click', addEventsBtnOk);
+    btnOk.addEventListener('click', addEventBtnOk);
 
     let btnDelete = document.querySelector('.add-events__body_btn-delete');
-    btnDelete.addEventListener('click', addEventsBtnDelete);
+    btnDelete.addEventListener('click', addEventBtnDelete);
 
     let tableCol = document.querySelectorAll('.section-dates__table_col');
     for (let i =0; i < tableCol.length; i++) {
@@ -92,22 +93,42 @@ function addEvent() {
     addEvent.style.display = 'block';
 }
 
-function addEventsBtnClose() {
-    closeAddEvents();
+function addEventBtnClose() {
+    closeAddEvent();
+
+    storage.currentEvent.style.border = storage.previosStyleBorder;
 }
 
-function addEventsBtnCreate() {
+function addEventBtnCreate() {
     if (verifeEvent()) {
         createEvent();
-        closeAddEvents();
+        closeAddEvent();
     }
 }
 
-function addEventsBtnOk() {
-    console.log('addEventsBtnOk()');
+function addEventBtnOk() {
+    let newEvent = toFormEvent();
+
+    let indexEvent = +storage.currentEvent.getAttribute('data-array');
+
+    let needClearEvent = (newEvent.date !== storage.tableEvents[indexEvent].date);
+
+    saveEvent(newEvent, indexEvent);
+
+    closeAddEvent();
+
+    storage.currentEvent.style.border = storage.previosStyleBorder;
+
+    if (needClearEvent) {
+        // Clear event
+        storage.currentEvent.classList.remove('event');
+        storage.currentEvent.querySelector('.section-dates__table_col-event').textContent = '';
+        storage.currentEvent.querySelector('.section-dates__table_col-participant').textContent = '';
+        storage.currentEvent.removeAttribute('data-array');
+    }
 }
 
-function addEventsBtnDelete() {
+function addEventBtnDelete() {
     let currentIndexEvent = +storage.currentEvent.getAttribute('data-array');
     let confirmText = 'Удалить событие "' + storage.tableEvents[currentIndexEvent].title + '" ' + storage.tableEvents[currentIndexEvent].date + '!';
     let answer = confirm(confirmText);
@@ -119,7 +140,85 @@ function addEventsBtnDelete() {
         storage.currentEvent.querySelector('.section-dates__table_col-participant').textContent = '';
 
         deleteEvent();
-        closeAddEvents();
+        closeAddEvent();
+    }
+}
+
+function editEvent(e) {
+    let findEvent = null;
+
+    for (let i = 0; i < e.path.length; i++) {
+        if (e.path[i].classList.contains('section-dates__table_col')) {
+            findEvent = e.path[i];
+            break;
+        }
+    }
+
+    if (findEvent.classList.contains('event')) {
+        storage.previosStyleBorder = window.getComputedStyle(findEvent).border;
+        findEvent.style.border = '2px solid green';
+
+        let indexArrayEvents = +findEvent.getAttribute('data-array');
+
+        let editEvent = document.querySelector('.add-events');
+
+        document.querySelector('.add-events__body_btn-create').style.display = 'none';
+        document.querySelector('.add-events__body_btn-ok').style.display = 'inline-block';
+        document.querySelector('.add-events__body_btn-delete').style.display = 'inline-block';
+
+        let windowInnerHeight = window.innerHeight;
+        let windowInnerWidth = window.innerWidth;
+
+        // Current position
+        let findEventOffsetTop = findEvent.offsetTop;
+        let findEventOffsetLeft = findEvent.offsetLeft;
+        let findEventOffsetHeight = findEvent.offsetHeight;
+        let findEventOffsetWidth = findEvent.offsetWidth;
+        
+        let editEventHeight = 300;
+        let editEventWidth = 350;
+
+        // Calculate coordinates
+        let editEventTop = 0;
+        let editEventLeft = 0;
+
+        removeAllArrows(editEvent);
+
+        editEventTop = findEventOffsetTop;
+
+        if ((findEventOffsetTop + editEventHeight) <= windowInnerHeight) {
+            editEventTop = findEventOffsetTop;
+            editEvent.querySelector('.arrow').style.top = '10%';
+        }
+        else {
+            editEventTop = findEventOffsetTop + findEventOffsetHeight - editEventHeight;
+            editEvent.querySelector('.arrow').style.top = '85%';
+        }
+
+        if ((findEventOffsetLeft + findEventOffsetWidth + editEventWidth) <= windowInnerWidth) {
+            editEventLeft = findEventOffsetLeft + findEventOffsetWidth + 10;
+            editEvent.classList.add('left');
+        }
+        else {
+            editEventLeft = findEventOffsetLeft - editEventWidth - 10;
+            editEvent.classList.add('right');
+        }
+
+        editEvent.style.top = editEventTop + 'px';
+        editEvent.style.left = editEventLeft + 'px';
+        editEvent.style.height = editEventHeight + 'px';
+        editEvent.style.width = editEventWidth + 'px';
+        editEvent.style.display = 'block';
+
+        editEvent.querySelector('.add-events__body_title-field').value = storage.tableEvents[indexArrayEvents].title;
+        editEvent.querySelector('.add-events__body_date-field').value = moment(storage.tableEvents[indexArrayEvents].date).format('YYYY-MM-DDThh:mm');
+        editEvent.querySelector('.add-events__body_participant-field').value = readListParticipants(indexArrayEvents);
+    
+        if (storage.tableEvents[indexArrayEvents].description) {
+            editEvent.querySelector('.add-events__body_description-field').value = storage.tableEvents[indexArrayEvents].description;
+        }
+
+        storage.currentEvent = findEvent;
     }
 }
 
@@ -193,79 +292,6 @@ function fieldFindBtnClear() {
     btnClear.blur();
 }
 
-function editEvent(e) {
-    let findEvent = null;
-
-    for (let i = 0; i < e.path.length; i++) {
-        if (e.path[i].classList.contains('section-dates__table_col')) {
-            findEvent = e.path[i];
-            break;
-        }
-    }
-
-    if (findEvent.classList.contains('event')) {
-        let indexArrayEvents = +findEvent.getAttribute('data-array');
-
-        let editEvent = document.querySelector('.add-events');
-
-        document.querySelector('.add-events__body_btn-create').style.display = 'none';
-        document.querySelector('.add-events__body_btn-ok').style.display = 'inline-block';
-        document.querySelector('.add-events__body_btn-delete').style.display = 'inline-block';
-
-        let windowInnerHeight = window.innerHeight;
-        let windowInnerWidth = window.innerWidth;
-
-        // Current position
-        let findEventOffsetTop = findEvent.offsetTop;
-        let findEventOffsetLeft = findEvent.offsetLeft;
-        let findEventOffsetHeight = findEvent.offsetHeight;
-        let findEventOffsetWidth = findEvent.offsetWidth;
-        
-        let editEventHeight = 300;
-        let editEventWidth = 350;
-
-        // Calculate coordinates
-        let editEventTop = 0;
-        let editEventLeft = 0;
-
-        removeAllArrows(editEvent);
-
-        editEventTop = findEventOffsetTop;
-
-        if ((findEventOffsetTop + editEventHeight) <= windowInnerHeight) {
-            /* editEventTop = findEventOffsetTop; */
-        }
-        else {
-            /* editEventTop = findEventOffsetTop + findEventOffsetHeight - editEventHeight; */
-        }
-
-        if ((findEventOffsetLeft + findEventOffsetWidth + editEventWidth) <= windowInnerWidth) {
-            editEventLeft = findEventOffsetLeft + findEventOffsetWidth + 10;
-            editEvent.classList.add('left');
-        }
-        else {
-            editEventLeft = findEventOffsetLeft - editEventWidth - 10;
-            editEvent.classList.add('right');
-        }
-
-        editEvent.style.top = editEventTop + 'px';
-        editEvent.style.left = editEventLeft + 'px';
-        editEvent.style.height = editEventHeight + 'px';
-        editEvent.style.width = editEventWidth + 'px';
-        editEvent.style.display = 'block';
-
-        editEvent.querySelector('.add-events__body_title-field').value = storage.tableEvents[indexArrayEvents].title;
-        editEvent.querySelector('.add-events__body_date-field').value = moment(storage.tableEvents[indexArrayEvents].date).format('YYYY-MM-DDThh:mm');
-        editEvent.querySelector('.add-events__body_participant-field').value = readListParticipants(indexArrayEvents);
-    
-        if (storage.tableEvents[indexArrayEvents].description) {
-            editEvent.querySelector('.add-events__body_description-field').value = storage.tableEvents[indexArrayEvents].description;
-        }
-
-        storage.currentEvent = findEvent;
-    }
-}
-
 //**********************************************************************
 // Ouput data
 
@@ -275,8 +301,7 @@ function outputPeriod() {
 }
 
 function getSelectedPeriod() {
-    // moment.locale('ru');
-    return moment(storage.currentMonth).format('MMMM YYYY');
+    return capitalizeFirstLetter(moment(storage.currentMonth).locale('ru').format('MMMM YYYY'));
 }
 
 function buildLayoutTable() {
@@ -365,7 +390,13 @@ function fillTable() {
         
             let curTableColSpan = curTableCol.querySelector('span');
 
-            curTableColSpan.textContent = countDate < 7 ? storage.outputDate.format('dddd') + ', ' : '';
+            let currentDay = '';
+
+            if (countDate < 7) {
+                currentDay = capitalizeFirstLetter(moment(storage.outputDate).locale('ru').format('dddd') + ', ');
+            }
+
+            curTableColSpan.textContent = currentDay;
             curTableColSpan.textContent += storage.outputDate.date();
         
             let curTableColEvent = curTableCol.querySelector('.section-dates__table_col-event');
@@ -500,7 +531,11 @@ function calculateDates() {
     }
 }
 
-function closeAddEvents() {
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function closeAddEvent() {
     let addEvent = document.querySelector('.add-events');
 
     document.querySelector('.add-events__body_title-field').value = '';
@@ -512,29 +547,7 @@ function closeAddEvents() {
 }
 
 function createEvent() {
-    let newEvent = {
-        'id': 0,
-        'title': document.querySelector('.add-events__body_title-field').value,
-        'date': document.querySelector('.add-events__body_date-field').value,
-        'participants': [],
-        'description': document.querySelector('.add-events__body_description-field').value,
-    }
-
-    let arrPartisipants = document.querySelector('.add-events__body_participant-field').value.split(',');
-
-    for (let i = 0; i < arrPartisipants.length; i++) {
-        let arrName = arrPartisipants[i].trim().split(' ');
-    
-        try {
-            newEvent.participants.push({
-                'id': 0,
-                'name': arrName[0],
-                'surname': arrName[1]
-            });
-        
-        }
-        catch {}
-    }
+    let newEvent = toFormEvent();
 
     let indexEvent = findDateEvent(newEvent);
 
@@ -542,13 +555,7 @@ function createEvent() {
         indexEvent = storage.tableEvents.length;
     }
 
-    storage.tableEvents[indexEvent] = newEvent;
-
-    localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
-
-    updateTableCol(indexEvent);
-
-    storage.needSorting = true;
+    saveEvent(newEvent, indexEvent, true);
 }
 
 function deleteEvent() {
@@ -557,6 +564,8 @@ function deleteEvent() {
     storage.tableEvents.splice(indexArrayEvents, 1);
 
     localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
+
+    storage.currentEvent.style.border = storage.previosStyleBorder;
 }
 
 function equalDates(indexEvent) {
@@ -630,6 +639,16 @@ function removeAllArrows(editEvent) {
     editEvent.classList.remove('right');
 }
 
+function saveEvent(newEvent, indexEvent, needSorting = false) {
+    storage.tableEvents[indexEvent] = newEvent;
+  
+    localStorage.setItem('arrayEvents', JSON.stringify(storage.tableEvents));
+
+    updateTableCol(indexEvent);
+
+    storage.needSorting = needSorting;
+}
+
 function sortTableEvents(necessarily = false) {
     if (storage.needSorting || necessarily) {
         storage.tableEvents.sort((first, second) => (moment(first.date) - moment(second.date)));
@@ -638,27 +657,32 @@ function sortTableEvents(necessarily = false) {
     }
 }
 
-function verifeEvent() {
-    if (!document.querySelector('.add-events__body_title-field').value) {
-        alert('Empty title!');
-
-        return false;
+function toFormEvent() {
+    let newEvent = {
+        'id': 0,
+        'title': document.querySelector('.add-events__body_title-field').value,
+        'date': document.querySelector('.add-events__body_date-field').value,
+        'participants': [],
+        'description': document.querySelector('.add-events__body_description-field').value,
     }
 
-    let dateTime = document.querySelector('.add-events__body_date-field');
+    let arrPartisipants = document.querySelector('.add-events__body_participant-field').value.split(',');
 
-    if (!dateTime.value) {
-        if (dateTime.validationMessage) {
-            alert(dateTime.validationMessage);
+    for (let i = 0; i < arrPartisipants.length; i++) {
+        let arrName = arrPartisipants[i].trim().split(' ');
+    
+        try {
+            newEvent.participants.push({
+                'id': 0,
+                'name': arrName[0],
+                'surname': arrName[1]
+            });
+        
         }
-        else {
-            alert('Empty date!');
-        }
-
-        return false;
+        catch {}
     }
 
-    return true;
+    return newEvent;
 }
 
 function updateTableCol(indexEvent) {
@@ -684,6 +708,8 @@ function updateTableCol(indexEvent) {
 function addNewEvent(curTableCol, indexEvent) {
     curTableCol.classList.add('event');
 
+    curTableCol.setAttribute('data-array', indexEvent);
+
     let curTableColEvent = curTableCol.querySelector('.section-dates__table_col-event');
     curTableColEvent.textContent = '';
     let curTableColParticipants = curTableCol.querySelector('.section-dates__table_col-participant');
@@ -692,4 +718,27 @@ function addNewEvent(curTableCol, indexEvent) {
     curTableColEvent.textContent = storage.tableEvents[indexEvent].title;
 
     addParticipants(curTableColParticipants, indexEvent);
+}
+
+function verifeEvent() {
+    if (!document.querySelector('.add-events__body_title-field').value) {
+        alert('Empty title!');
+
+        return false;
+    }
+
+    let dateTime = document.querySelector('.add-events__body_date-field');
+
+    if (!dateTime.value) {
+        if (dateTime.validationMessage) {
+            alert(dateTime.validationMessage);
+        }
+        else {
+            alert('Empty date!');
+        }
+
+        return false;
+    }
+
+    return true;
 }
