@@ -1,0 +1,146 @@
+/*********************************** BUTTON ***********************************/
+
+._btn {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-weight: 400;
+    font-size: 1rem;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+._btn-outline-light {
+    color: #f8f9fa;
+    background-color: transparent;
+    background-image: none;
+    border-color: #e1e6ea;
+}
+  
+._btn-outline-light:hover {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #e1e6ea;
+}
+
+/*********************************** POPOVER ***********************************/
+
+.popover {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    min-height: 150px;
+    max-height: 300px;
+    width: 200px;
+    padding: 0.25rem .75rem;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #00000033;
+    border-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  }
+
+  .popover > .arrow, .popover > .arrow::after {
+    display: block;
+    position: absolute;
+    height: 0;
+    width: 0;
+    border-style: solid;
+    border-color: transparent;
+}
+
+.popover > .arrow {
+    border-width: 11px;
+}
+
+.popover > .arrow:after {
+    border-width: 10px;
+    content: "";
+}
+
+.popover.top > .arrow::after {
+    content: " ";
+}
+
+.popover.top > .arrow {
+    position: absolute;
+    top: -11px;
+    left: 10%;
+    border-top-width: 0;
+    border-bottom-color: rgba(0,0,0,.25);
+}
+
+.popover.top > .arrow::after {
+    content: " ";
+    top: 1px;
+    margin-left: -10px;
+    border-width: 10px;
+    border-top-width: 0;
+    border-bottom-color: #fff;
+}
+
+.popover.right > .arrow {
+    position: absolute;
+    top: 10%;
+    right: -11px;
+    border-right-width: 0;
+    border-left-color: rgba(0,0,0,.25);
+}
+
+.popover.right > .arrow::after {
+    content: " ";
+    right: 1px;
+    margin-top: -10px;
+    border-width: 10px;
+    border-right-width: 0;
+    border-left-color: #fff;
+}
+
+.popover.bottom > .arrow {
+    position: absolute;
+    bottom: -11px;
+    left: 10%;
+    border-bottom-width: 0;
+    border-top-color: rgba(0,0,0,.25);
+}
+
+.popover.bottom > .arrow::after {
+    content: " ";
+    bottom: 1px;
+    margin-left: -10px;
+    border-width: 10px;
+    border-bottom-width: 0;
+    border-top-color: #fff;
+}
+
+.popover.left > .arrow {
+    position: absolute;
+    top: 10%;
+    left: -11px;
+    border-left-width: 0;
+    border-right-color: rgba(0,0,0,.25);
+}
+
+.popover.left > .arrow::after {
+    content: " ";
+    left: 1px;
+    margin-top: -10px;
+    border-width: 10px;
+    border-left-width: 0;
+    border-right-color: #fff;
+}
+
+/******************** Extra large device (>= 1200px / 1140px) ********************/
+/******************** Large device (>= 992px / 960px) ********************/
+/******************** Medium device (>= 768px / 720px) ********************/
+/******************** Small device (>= 576px / 540px) ********************/
+/******************** Extra small device (< 576px) ********************/
